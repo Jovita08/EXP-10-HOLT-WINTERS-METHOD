@@ -21,32 +21,45 @@ Developed By : **Virgil Jovita A**
 </br>
 Register No. : **212221240062**
 ```
-import pandas as pd import numpy as np import os
-import matplotlib.pyplot as plt df=pd.read_csv('dailysales.csv',parse_dates=['date']) df.info()
-df.head() df.isnull().sum() df=df.groupby('date').sum() df.head(10)
-df=df.resample(rule='MS').sum() df.head(10)
-df.plot()
-import statsmodels.api as sm
-from statsmodels.tsa.seasonal import seasonal_decompose seasonal_decompose(df,model='additive').plot(); train=df[:19] #till Jul19
-test=df[19:] # from aug19 train.tail()
-test
- 
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
-hwmodel=ExponentialSmoothing(train.sales,trend='add', seasonal='mul', seasonal_periods=4).fi test_pred=hwmodel.forecast(5)
-test_pred
-train['sales'].plot(legend=True, label='Train', figsize=(10,6)) test['sales'].plot(legend=True, label='Test') test_pred.plot(legend=True, label='predicted_test')
-from sklearn.metrics import mean_squared_error np.sqrt(mean_squared_error(test,test_pred)) df.sales.mean(), np.sqrt(df.sales.var())
-final_model=ExponentialSmoothing(df.sales,trend='add', seasonal='mul', seasonal_periods=4).f pred=final_model.forecast(4)
-pred
-df['sales'].plot(legend=True, label='sales', figsize=(10,6)) pred.plot(legend=True, label='prediction')
+import matplotlib.pyplot as plt
+from sklearn.metrics import mean_absolute_error,mean_squared_error
+
+import pandas as pd
+airline  = pd.read_csv('AirPassengers.csv',index_col='Month',parse_dates=True)
+airline.plot()
+airline.freq = 'MS'
+airline.index
+len(airline)
+train_airline = airline[:108] 
+test_airline = airline[108:] 
+fitted_model = ExponentialSmoothing(train_airline['#Passengers'],trend='mul',seasonal='mul',seasonal_periods=12).fit()
+test_predictions = fitted_model.forecast(36).rename('HW Test Forecast')
+test_predictions[:10]
+
+train_airline['#Passengers'].plot(legend=True,label='TRAIN')
+test_airline['#Passengers'].plot(legend=True,label='TEST',figsize=(12,8))
+plt.title('Train and Test Data');
+
+train_airline['#Passengers'].plot(legend=True,label='TRAIN')
+test_airline['#Passengers'].plot(legend=True,label='TEST',figsize=(12,8))
+test_predictions.plot(legend=True,label='PREDICTION')
+plt.title('Train, Test and Predicted Test using Holt Winters');
+print("Mean Absolute Error = ",mean_absolute_error(test_airline,test_predictions))
+final_model = ExponentialSmoothing(airline['#Passengers'],trend='mul',seasonal='mul',seasonal_periods=12).fit()
+forecast_predictions = final_model.forecast(steps=36)
+
+airline['#Passengers'].plot(figsize=(12,8),legend=True,label='Current Airline Passengers')
+forecast_predictions.plot(legend=True,label='Forecasted Airline Passengers')
+plt.title('Airline Passenger Forecast');
 ```
 ## OUTPUT: 
-### SALES:
-![image](https://github.com/Jovita08/EXP-10-HOLT-WINTERS-METHOD/assets/94174503/b6740636-ccb7-4ed9-bbe4-188d312f8ba8)
-### TEST_PREDICTION:
-![image](https://github.com/Jovita08/EXP-10-HOLT-WINTERS-METHOD/assets/94174503/ce68ebe9-2726-4dd1-afdf-3172f0401a86)
+### Passenger:
+![image](https://github.com/Jovita08/EXP-10-HOLT-WINTERS-METHOD/assets/94174503/c4b08961-d90a-4aa3-8042-a79943fbb91b)
+### TEST_PREDICTION: 
+![image](https://github.com/Jovita08/EXP-10-HOLT-WINTERS-METHOD/assets/94174503/5d793d12-417b-438e-965a-ebde0f829ab6)
 ### FINAL_PREDICTION:
-![image](https://github.com/Jovita08/EXP-10-HOLT-WINTERS-METHOD/assets/94174503/ded84e26-bbe2-4ef8-8c56-ef80d5a8db3f)
+![image](https://github.com/Jovita08/EXP-10-HOLT-WINTERS-METHOD/assets/94174503/40154380-ba3d-4aaa-be00-d2f74c6ad2e3)
 
 ## RESULT:
 Thus, the program run successfully based on the Holt Winters Method model.
